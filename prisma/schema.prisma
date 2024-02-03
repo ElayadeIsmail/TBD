@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(cuid())
+  email    String    @unique
+  username String    @unique
+  name     String?
+  password Password?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  roles              Role[]
+  createdEnrollments StudentEnrollment[]
+}
+
+model Password {
+  hash String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model Permission {
+  id          String @id @default(cuid())
+  action      String // e.g. create, read, update, delete
+  entity      String // e.g. student, payment, etc.
+  access      String // e.g. own or any
+  description String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles Role[]
+
+  @@unique([action, entity, access])
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  permissions Permission[]
+}
+
+model MajorStudent {
+  id   String @id @default(cuid())
+  name String @unique
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  classEntities ClassEntity[]
+  students      Student[]
+}
+
+model Subject {
+  id   String @id @default(cuid())
+  name String @unique
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  classEntities ClassEntity[]
+}
+
+model Level {
+  id   String @id @default(cuid())
+  name String @unique
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  classEntities ClassEntity[]
+  students      Student[]
+}
+
+model ClassEntity {
+  id        String       @id @default(cuid())
+  name      String
+  levelId   String
+  level     Level        @relation(fields: [levelId], references: [id])
+  subjectId String
+  subject   Subject      @relation(fields: [subjectId], references: [id])
+  majorId   String
+  major     MajorStudent @relation(fields: [majorId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  groups    Group[]
+  price     Int?
+
+  @@unique([levelId, subjectId, majorId])
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+model Student {
+  id               String       @id @default(cuid())
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime?
+  phoneNumber      String?
+  CIN              String?
+  enrollmentDate   DateTime
+  emergencyContact String?
+  address          String?
+  gender           Gender
+  levelId          String
+  level            Level        @relation(fields: [levelId], references: [id])
+  majorId          String
+  major            MajorStudent @relation(fields: [majorId], references: [id])
+
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  enrollment StudentEnrollment[]
+}
+
+model Teacher {
+  id             String    @id @default(cuid())
+  address        String?
+  firstName      String
+  lastName       String
+  dateOfBirth    DateTime?
+  phoneNumber    String?
+  enrollmentDate DateTime
+  CIN            String?
+  groups         Group[]
+  gender         Gender
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StudentEnrollment {
+  id             String   @id @default(cuid())
+  student        Student  @relation(fields: [studentId], references: [id])
+  studentId      String
+  groupId        String
+  group          Group    @relation(fields: [groupId], references: [id])
+  enrollmentDate DateTime
+  creatorId      String
+  creator        User     @relation(fields: [creatorId], references: [id])
+  price          Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Group {
+  id            String              @id @default(cuid())
+  name          String
+  classEntityId String
+  classEntity   ClassEntity         @relation(fields: [classEntityId], references: [id])
+  students      StudentEnrollment[]
+  teacherId     String
+  teacher       Teacher             @relation(fields: [teacherId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
