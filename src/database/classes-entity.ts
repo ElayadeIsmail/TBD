@@ -1,4 +1,4 @@
-import { InsertClassSchemaType } from "@/lib/validators/classes-entity";
+import { InsertClassSchemaType } from "@/lib/validators/classes-entity.validator";
 import prisma from "./db";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -9,8 +9,7 @@ export const createClass = async (inputs: InsertClassSchemaType) => {
         id: inputs.levelId
       }
     })
-    if (!level) return { status: "error", message: "level does not exist" } as const
-    let className = level.name
+    let className = level!.name
     if (inputs.subjects.length > 1) {
       const subjects = await prisma.subject.findMany({
         where: {
