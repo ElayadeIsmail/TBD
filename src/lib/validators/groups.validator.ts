@@ -5,6 +5,7 @@ export const InsertGroupSchema = z.object({
   name: z.string().min(2, "name is required"),
   classId: z.string().min(2, "class is required"),
   teacherId: z.string().min(2, "teacher is required"),
+  students: z.string().array()
 }).superRefine(async ({ classId, teacherId }, ctx) => {
   const [classEntity, teacher] = await Promise.all([prisma.classEntity.findUnique({
     where: {
