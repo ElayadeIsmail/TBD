@@ -1,3 +1,4 @@
+import { Gender } from "@prisma/client"
 import { z } from "zod"
 
 
@@ -9,6 +10,7 @@ export const InsertTeacherSchema = z.object({
   cin: z.string().optional(),
   enrollmentDate: z.date(),
   address: z.string().optional(),
+  gender: z.enum([Gender.Male, Gender.Female]),
 })
 
 

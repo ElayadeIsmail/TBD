@@ -1,8 +1,8 @@
 import { InsertClassSchemaType } from "@/lib/validators/classes-entity.validator";
-import prisma from "./db";
+import prisma from "../db";
 import { getErrorMessage } from "@/lib/utils";
 
-export const createClass = async (inputs: InsertClassSchemaType) => {
+export const InsertClass = async (inputs: InsertClassSchemaType) => {
   try {
     const level = await prisma.level.findUnique({
       where: {

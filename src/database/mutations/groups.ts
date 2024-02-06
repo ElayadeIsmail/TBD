@@ -1,6 +1,6 @@
 import { getErrorMessage } from '@/lib/utils';
 import { InsertGroupType } from '@/lib/validators/groups.validator';
-import prisma from './db';
+import prisma from '../db';
 
 export const InsertGroup = async ({
   classId,
